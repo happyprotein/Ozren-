@@ -86,6 +86,10 @@ select.f:focus{outline:none;border-color:var(--gold);}
 dl.meta{display:grid;grid-template-columns:auto 1fr;gap:7px 18px;margin:4px 0 0;font-size:15px;}
 dl.meta dt{color:var(--garnet);font-weight:700;white-space:nowrap;}
 dl.meta dd{margin:0;}
+.cond{display:inline-block;font-size:13px;letter-spacing:.02em;border-radius:20px;padding:2px 11px;border:1px solid;}
+.cond.ok{color:#33452c;border-color:#b8c9ac;background:#eef4e8;}
+.cond.mid{color:#6b5518;border-color:#dcc98c;background:#faf3e0;}
+.cond.bad{color:#6d2418;border-color:#e0bdb1;background:#fbeee8;}
 .avail-note{margin-top:14px;padding:11px 14px;border-radius:3px;font-size:14px;line-height:1.5;}
 .avail-note.loan{background:#eef4e8;border-left:3px solid #5a7a4e;color:#33452c;}
 .avail-note.ref{background:#fcf0ea;border-left:3px solid var(--garnet);color:#5a2a20;}
@@ -206,6 +210,14 @@ let books=[],selectedId=null;
 const $=s=>document.querySelector(s);
 function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function fillSelect(el,arr,ph){el.innerHTML=`<option value="">${ph}</option>`+arr.map(v=>`<option>${esc(v)}</option>`).join('');}
+function condClass(c){
+  const s=String(c||'').toLowerCase();
+  if(s.includes('одлич')||s.includes('odlič'))return 'ok';
+  if(s.includes('веома добро')||s.includes('veoma dobro'))return 'ok';
+  if(s.includes('добро')||s.includes('dobro'))return 'mid';
+  if(s.includes('оштећ')||s.includes('ošteć')||s.includes('рестаур')||s.includes('restaur'))return 'bad';
+  return 'mid';
+}
 
 function applyFilters(){
   const q=$('#q').value.trim().toLowerCase();
@@ -266,6 +278,8 @@ function renderDetail(){
         <dt>Број страна</dt><dd>${esc(b.pages||'—')}</dd>
         <dt>Језик</dt><dd>${esc(b.lang||'—')}</dd>
         <dt>Писмо</dt><dd>${esc(b.script||'—')}</dd>
+        ${b.binding?`<dt>Повез</dt><dd>${esc(b.binding)}</dd>`:''}
+        ${b.cond?`<dt>Стање</dt><dd><span class="cond ${condClass(b.cond)}">${esc(b.cond)}</span></dd>`:''}
       </dl>
       <div class="avail-note ${loan?'loan':'ref'}">
         ${loan
